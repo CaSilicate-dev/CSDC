@@ -15,6 +15,7 @@ const t1fsize = ref(48)
 const vfsize = ref(96)
 const t2fsize = ref(48)
 const value = ref(0.0)
+const nextDay = ref(false)
 
 const heightOffset = ref(-96)
 
@@ -43,6 +44,9 @@ function updateTime() {
   const now = dayjs()
   const target = targetTime.value
   let diff = target.diff(now, 'milliseconds')
+  if (nextDay.value && diff < 0) {
+    diff = diff + 24 * 60 * 60 * 1000
+  }
   if (unit.value === "h") {
     diff = diff / (1000 * 60 * 60)
   } else if (unit.value === "m") {
@@ -52,7 +56,6 @@ function updateTime() {
   }
   diff = roundToDecimal(diff, prec.value)
   diff = diff.toFixed(prec.value)
-  console.log(diff)
   value.value = diff
 }
 onMounted(function() {
@@ -78,88 +81,105 @@ onMounted(function() {
           <a-button type="primary" danger>重置</a-button>
         </a-popconfirm>
       </template>
-      <a-space>
-        时间单位:
-        <a-radio-group v-model:value="unit">
-          <a-radio-button value="h">小时</a-radio-button>
-          <a-radio-button value="m">分钟</a-radio-button>
-          <a-radio-button value="s">秒</a-radio-button>
-        </a-radio-group>
-      </a-space>
-
-      <a-divider />
-
-      <a-space>
-        目标时间:
-        <a-time-picker
-          v-model:value="targetTime"
-        />
-      </a-space>
-
-      <a-divider />
-
-      <a-space>
-        保留小数位数:
-        <a-input-number :min="0" :max="6" :step="1" v-model:value="prec"/>
-      </a-space>
-
-      <a-divider />
-
-      <a-space direction="vertical">
+      <div :style="{ userSelect: 'none' }">
         <a-space>
-          第一标题:
-          <a-input v-model:value="title1" />
+          时间单位:
+          <a-radio-group v-model:value="unit">
+            <a-radio-button value="h">小时</a-radio-button>
+            <a-radio-button value="m">分钟</a-radio-button>
+            <a-radio-button value="s">秒</a-radio-button>
+          </a-radio-group>
         </a-space>
-        <a-space>
-          第二标题:
-          <a-input v-model:value="title2" />
-        </a-space>
-      </a-space>
 
-      <a-divider />
+        <a-divider />
 
-      <a-row align="middle" style="margin-bottom: 8px;">
-        <a-col :span="12">
-          第一标题字体大小
-        </a-col>
-        <a-col :span="12">
-          <a-input-number v-model:value="t1fsize" :min="10" :max="1000" :step="1" />
-        </a-col>
-      </a-row>
-      <a-row align="middle" style="margin-bottom: 8px;">
-        <a-col :span="12">
-          时间字体大小
-        </a-col>
-        <a-col :span="12">
-          <a-input-number v-model:value="vfsize" :min="10" :max="1000" :step="1" />
-        </a-col>
-      </a-row>
-      <a-row align="middle" style="margin-bottom: 8px;">
-        <a-col :span="12">
-          第二标题字体大小
-        </a-col>
-        <a-col :span="12">
-          <a-input-number v-model:value="t2fsize" :min="10" :max="1000" :step="1" />
-        </a-col>
-      </a-row>
-
-      <a-divider />
-
-      <div>
-        高级选项:
-        <a-tag color="error">可能影响正常运行，请谨慎修改</a-tag>
-        <br/>
-        <br/>
         <a-row align="middle" style="margin-bottom: 8px;">
           <a-col :span="12">
-            Flex 父容器高度偏移:
+            目标时间:
           </a-col>
           <a-col :span="12">
-            <a-input-number v-model:value="heightOffset" :min="-500" :max="500" :step="1" />
+            <a-time-picker v-model:value="targetTime"/>
           </a-col>
         </a-row>
-      </div>
+        <a-row align="middle" style="margin-bottom: 8px;">
+          <a-col :span="12">
+            次日
+          </a-col>
+          <a-col :span="12">
+            <a-switch v-model:checked="nextDay">
+              <template #checkedChildren>
+                I
+              </template>
+              <template #unCheckedChildren>
+                O
+              </template>
+            </a-switch>
+          </a-col>
+        </a-row>
+        <a-divider />
 
+        <a-space>
+          保留小数位数:
+          <a-input-number :min="0" :max="6" :step="1" v-model:value="prec"/>
+        </a-space>
+
+        <a-divider />
+
+        <a-space direction="vertical">
+          <a-space>
+            第一标题:
+            <a-input v-model:value="title1" />
+          </a-space>
+          <a-space>
+            第二标题:
+            <a-input v-model:value="title2" />
+          </a-space>
+        </a-space>
+
+        <a-divider />
+
+        <a-row align="middle" style="margin-bottom: 8px;">
+          <a-col :span="12">
+            第一标题字体大小
+          </a-col>
+          <a-col :span="12">
+            <a-input-number v-model:value="t1fsize" :min="10" :max="1000" :step="1" />
+          </a-col>
+        </a-row>
+        <a-row align="middle" style="margin-bottom: 8px;">
+          <a-col :span="12">
+            时间字体大小
+          </a-col>
+          <a-col :span="12">
+            <a-input-number v-model:value="vfsize" :min="10" :max="1000" :step="1" />
+          </a-col>
+        </a-row>
+        <a-row align="middle" style="margin-bottom: 8px;">
+          <a-col :span="12">
+            第二标题字体大小
+          </a-col>
+          <a-col :span="12">
+            <a-input-number v-model:value="t2fsize" :min="10" :max="1000" :step="1" />
+          </a-col>
+        </a-row>
+
+        <a-divider />
+
+        <div>
+          高级选项:
+          <a-tag color="error">可能影响正常运行，请谨慎修改</a-tag>
+          <br/>
+          <br/>
+          <a-row align="middle" style="margin-bottom: 8px;">
+            <a-col :span="12">
+              Flex 父容器高度偏移:
+            </a-col>
+            <a-col :span="12">
+              <a-input-number v-model:value="heightOffset" :min="-500" :max="500" :step="1" />
+            </a-col>
+          </a-row>
+        </div>
+      </div>
     </a-drawer>
 
 
